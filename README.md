@@ -4,6 +4,7 @@
   <br>
   <br>
   <a href="#overview">Overview</a> ·
+  <a href="#screenshots">Screenshots</a> ·
   <a href="#what-it-does">What It Does</a> ·
   <a href="#how-to-run">How to Run</a> ·
   <a href="#project-structure">Project Structure</a> ·
@@ -28,6 +29,15 @@ The practical walks through the progression from a static screen, to View Bindin
 The app has a single activity and a single screen. The layout is a ConstraintLayout that holds a title, three inputs (name, phone, rent), a SAVE button and a result area. Kotlin reaches the views through View Binding, and the result area reads a Tenant object directly through Data Binding.
 
 The point of the exercise is the separation of concerns. MainActivity builds a Tenant and hands it to the layout, and the layout decides how that Tenant is displayed. Changing the display format means editing the Tenant class, not the activity.
+
+## Screenshots
+
+<p align="center">
+  <img src="screenshots/add-tenant-empty.png" width="320" alt="Add Tenant screen with empty fields">
+  <img src="screenshots/add-tenant-saved.png" width="320" alt="Add Tenant screen after saving a tenant">
+</p>
+
+On the left is the screen as it opens, with the result area showing its placeholder hint. On the right, a tenant has been saved: the name renders in large bold text and the summary is filled in by Data Binding. The three inputs clear on save.
 
 ## What it does
 
@@ -87,6 +97,9 @@ TenantManagementSystem/
 ├── build.gradle.kts
 ├── settings.gradle.kts
 ├── gradle.properties
+├── screenshots/
+│   ├── add-tenant-empty.png
+│   └── add-tenant-saved.png
 └── README.md
 ```
 
