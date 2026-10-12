@@ -42,7 +42,10 @@ class LoginActivity : AppCompatActivity() {
             }
 
             // Explicit Intent: open this exact screen.
+            // Welcome the user: carry the login email across with putExtra.
             val intent = Intent(this, MainActivity::class.java)
+
+            intent.putExtra("EMAIL", email)
 
             startActivity(intent)
 

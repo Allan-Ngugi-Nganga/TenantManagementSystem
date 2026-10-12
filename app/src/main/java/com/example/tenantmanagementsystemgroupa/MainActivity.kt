@@ -30,17 +30,36 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(binding.root)
 
+        // Try it yourself: welcome the user. Login sent the email with putExtra,
+        // so read it back here and greet the person who just logged in.
+        val email = intent.getStringExtra("EMAIL")
+
+        if (email != null) {
+            Toast.makeText(this, "Logged in as $email", Toast.LENGTH_SHORT).show()
+        }
+
         binding.saveButton.setOnClickListener {
 
-            val name = binding.tenantNameEditText.text.toString()
+            val name = binding.tenantNameEditText.text.toString().trim()
 
-            val phone = binding.phoneEditText.text.toString()
+            val phone = binding.phoneEditText.text.toString().trim()
 
-            val rent = binding.rentEditText.text.toString()
+            val rent = binding.rentEditText.text.toString().trim()
 
-            // Try it yourself 1: reject an empty name.
+            // Try it yourself: validate the tenant. None of the three fields
+            // may be empty; show an error on the first empty one.
             if (name.isBlank()) {
-                binding.tenantNameEditText.error = "Tenant name is required"
+                binding.tenantNameEditText.error = "Required"
+                return@setOnClickListener
+            }
+
+            if (phone.isBlank()) {
+                binding.phoneEditText.error = "Required"
+                return@setOnClickListener
+            }
+
+            if (rent.isBlank()) {
+                binding.rentEditText.error = "Required"
                 return@setOnClickListener
             }
 
@@ -48,10 +67,10 @@ class MainActivity : AppCompatActivity() {
 
             binding.tenant = tenant
 
-            // Remember it for the CALL TENANT button.
+            // Remember it for the CALL and SHARE buttons.
             lastTenant = tenant
 
-            // Try it yourself 4: clear the inputs after a successful save.
+            // Clear the inputs after a successful save.
             binding.tenantNameEditText.text.clear()
             binding.phoneEditText.text.clear()
             binding.rentEditText.text.clear()
@@ -70,6 +89,26 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${tenant.phone}"))
 
             startActivity(intent)
+        }
+
+        // Try it yourself: share a tenant. Hand the saved tenant's details to
+        // any app that can send text (WhatsApp, Messages, Gmail).
+        binding.shareButton.setOnClickListener {
+
+            val tenant = lastTenant
+
+            if (tenant == null) {
+                Toast.makeText(this, "Save a tenant first", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val intent = Intent(Intent.ACTION_SEND)
+
+            intent.type = "text/plain"
+
+            intent.putExtra(Intent.EXTRA_TEXT, tenant.summary())
+
+            startActivity(Intent.createChooser(intent, "Share tenant"))
         }
     }
 }
