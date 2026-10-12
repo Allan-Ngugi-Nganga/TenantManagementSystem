@@ -43,11 +43,11 @@ Kotlin reaches the views through View Binding, and the result area reads a `Tena
 </p>
 
 <p align="center">
-  <img src="screenshots/add-tenant-empty.png" width="300" alt="Add Tenant screen with empty fields">
+  <img src="screenshots/add-tenant-welcome.png" width="300" alt="Add Tenant screen greeting the logged-in user">
   <img src="screenshots/add-tenant-saved.png" width="300" alt="Add Tenant screen after saving a tenant">
 </p>
 <p align="center">
-  <em>The Add Tenant screen as it opens, and after a tenant is saved through Data Binding.</em>
+  <em>The Add Tenant screen as it opens — greeted with the email carried from Login — and after a tenant is saved through Data Binding.</em>
 </p>
 
 <p align="center">
@@ -65,6 +65,7 @@ On the Add Tenant screen the name renders in large bold text and the summary is 
 - Validates the Login fields and blocks the move to the dashboard when either is empty.
 - Opens `MainActivity` (the Add Tenant screen) with an explicit Intent, then `finish()`es so Back does not return to Login.
 - Carries the registered email from Register to Login with `putExtra("EMAIL")` / `getStringExtra`, and uses `FLAG_ACTIVITY_CLEAR_TOP` so Register does not stack a second Login.
+- Greets the logged-in user: Login forwards the email to `MainActivity` with `putExtra("EMAIL")`, which shows a *Logged in as …* toast.
 - Opens the Strathmore website from the Login screen with an implicit Intent (`ACTION_VIEW` + `Uri.parse`).
 - Renders a `Tenant` object through Data Binding with `android:text="@{tenant.summary()}"`.
 - Holds tenant data in a `Tenant` data class (`name`, `phone`, `rent`) with a `summary()` method.
@@ -147,7 +148,7 @@ TenantManagementSystem/
 │   ├── login.png
 │   ├── register.png
 │   ├── login-prefilled.png
-│   ├── add-tenant-empty.png
+│   ├── add-tenant-welcome.png
 │   ├── add-tenant-saved.png
 │   └── add-tenant-share.png
 └── README.md
