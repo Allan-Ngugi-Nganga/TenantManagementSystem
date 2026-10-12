@@ -50,7 +50,14 @@ Kotlin reaches the views through View Binding, and the result area reads a `Tena
   <em>The Add Tenant screen as it opens, and after a tenant is saved through Data Binding.</em>
 </p>
 
-On the Add Tenant screen the name renders in large bold text and the summary is filled in by Data Binding, the three inputs clear on save, and CALL TENANT hands the saved number to the dialer.
+<p align="center">
+  <img src="screenshots/add-tenant-share.png" width="300" alt="Android share sheet after tapping SHARE TENANT">
+</p>
+<p align="center">
+  <em>SHARE TENANT hands the saved tenant's summary to the Android share sheet through an implicit ACTION_SEND Intent.</em>
+</p>
+
+On the Add Tenant screen the name renders in large bold text and the summary is filled in by Data Binding, the three inputs clear on save, CALL TENANT hands the saved number to the dialer, and SHARE TENANT hands the tenant's summary to any app that can send text.
 
 ## What it does
 
@@ -141,7 +148,8 @@ TenantManagementSystem/
 │   ├── register.png
 │   ├── login-prefilled.png
 │   ├── add-tenant-empty.png
-│   └── add-tenant-saved.png
+│   ├── add-tenant-saved.png
+│   └── add-tenant-share.png
 └── README.md
 ```
 
