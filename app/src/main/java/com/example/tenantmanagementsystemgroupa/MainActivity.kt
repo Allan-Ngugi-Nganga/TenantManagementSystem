@@ -1,6 +1,9 @@
 package com.example.tenantmanagementsystemgroupa
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tenantmanagementsystemgroupa.databinding.ActivityMainBinding
 
@@ -9,12 +12,16 @@ import com.example.tenantmanagementsystemgroupa.databinding.ActivityMainBinding
 // Name: Allan Ng'ang'a
 // Reg:  191250
 //
-// Steps 1-21 of the practical. View Binding gives us safe access to the views;
-// Data Binding lets the layout read a Tenant object directly. MainActivity no
-// longer formats the text - it just builds a Tenant and hands it over.
+// Lesson 6 Navigation Practical 1 - Part C (Steps 11-12):
+// The screen keeps its View Binding / Data Binding behaviour and adds a
+// CALL TENANT button. We remember the last saved tenant so the button knows
+// whose number to hand to the dialer via an implicit Intent (ACTION_DIAL).
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+
+    // Remembers the most recently saved tenant (null until the first SAVE).
+    private var lastTenant: Tenant? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,10 +48,28 @@ class MainActivity : AppCompatActivity() {
 
             binding.tenant = tenant
 
+            // Remember it for the CALL TENANT button.
+            lastTenant = tenant
+
             // Try it yourself 4: clear the inputs after a successful save.
             binding.tenantNameEditText.text.clear()
             binding.phoneEditText.text.clear()
             binding.rentEditText.text.clear()
+        }
+
+        binding.callButton.setOnClickListener {
+
+            val tenant = lastTenant
+
+            if (tenant == null) {
+                Toast.makeText(this, "Save a tenant first", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Implicit Intent: ask the phone's dialer to open with this number.
+            val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${tenant.phone}"))
+
+            startActivity(intent)
         }
     }
 }
