@@ -3,6 +3,7 @@ package com.example.tenantmanagementsystemgroupa
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tenantmanagementsystemgroupa.databinding.ActivityLoginBinding
@@ -18,6 +19,8 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Log.d("TENANT_LIFECYCLE", "LoginActivity: onCreate")
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
 
@@ -67,5 +70,38 @@ class LoginActivity : AppCompatActivity() {
 
             startActivity(intent)
         }
+    }
+
+    // ── Try it yourself (1): watch Login's own lifecycle ──────────
+    // Log in, then look at Logcat: LoginActivity gets onDestroy only AFTER
+    // MainActivity's onCreate, because the login button calls finish().
+    override fun onStart() {
+        super.onStart()
+        Log.d("TENANT_LIFECYCLE", "LoginActivity: onStart")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("TENANT_LIFECYCLE", "LoginActivity: onResume")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d("TENANT_LIFECYCLE", "LoginActivity: onPause")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d("TENANT_LIFECYCLE", "LoginActivity: onStop")
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        Log.d("TENANT_LIFECYCLE", "LoginActivity: onRestart")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("TENANT_LIFECYCLE", "LoginActivity: onDestroy")
     }
 }

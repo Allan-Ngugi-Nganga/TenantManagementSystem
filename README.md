@@ -13,7 +13,7 @@
   <a href="#build-notes">Build Notes</a> ·
   <a href="#author">Author</a>
   <br>
-  <img src="https://img.shields.io/badge/version-1.0.0-16a34a" alt="Version 1.0.0">
+  <img src="https://img.shields.io/badge/version-1.1.0-16a34a" alt="Version 1.1.0">
   <img src="https://img.shields.io/badge/license-UNLICENSED-16a34a" alt="UNLICENSED">
   <img src="https://img.shields.io/badge/platform-Android-16a34a" alt="Android">
   <img src="https://img.shields.io/badge/language-Kotlin-16a34a" alt="Kotlin">
@@ -30,6 +30,8 @@ The Lesson 6 practicals walk through the progression from a static screen, to Vi
 The app has three Activities. `LoginActivity` is the first screen: it takes an email and password, opens `MainActivity` with an explicit Intent, and links to `RegisterActivity`. `RegisterActivity` validates three fields, then returns to Login carrying the email with `putExtra("EMAIL")`. `MainActivity` is the Add Tenant screen: its layout is a ConstraintLayout that holds a title, three inputs (name, phone, rent), a SAVE button, a CALL TENANT button and a result area.
 
 Kotlin reaches the views through View Binding, and the result area reads a `Tenant` object directly through Data Binding. The point of the exercise is the separation of concerns. `MainActivity` builds a `Tenant` and hands it to the layout, and the layout decides how that `Tenant` is displayed. Changing the display format means editing the `Tenant` class, not the activity.
+
+Practical 2 goes inside the Activity: it logs the Activity lifecycle so the create/pause/stop/destroy order is visible in Logcat, and it saves the last tenant in a `Bundle` so it survives a screen rotation. It then builds the screens that will live inside `MainActivity` as three Fragments — Dashboard, Add Tenant and View Tenants — and maps them in a Navigation Graph. Those Fragments are created and mapped but not shown yet; Practical 3 plugs them into `MainActivity` with a `NavHost`.
 
 ## Screenshots
 
@@ -72,6 +74,10 @@ On the Add Tenant screen the name renders in large bold text and the summary is 
 - Validates the tenant name: an empty name shows a field error and blocks the save.
 - Shows the saved tenant's name in large bold text above the summary, and clears the three inputs after a save.
 - Dials the last saved tenant with an implicit Intent (`ACTION_DIAL` + `"tel:$phone"`), warning "Save a tenant first" if nothing is saved yet.
+- Logs every Activity lifecycle callback under the `TENANT_LIFECYCLE` tag, so the order Android calls them in is visible in Logcat.
+- Saves the last tenant in `onSaveInstanceState()` and restores it in `onCreate()`, so a saved tenant survives a screen rotation.
+- Keeps tenants in an in-memory `TenantRepository` object that every screen shares.
+- Defines `DashboardFragment`, `AddTenantFragment` and `ViewTenantsFragment`, mapped in `res/navigation/nav_graph.xml` with Safe Args actions (wired into `MainActivity` in Practical 3).
 
 ## How the screens connect
 
@@ -89,6 +95,22 @@ MainActivity ─── implicit Intent (ACTION_DIAL) ───▶ Phone dialer
 ```
 
 An explicit Intent names the exact screen to open (`Intent(this, MainActivity::class.java)`). An implicit Intent only describes what you want done, and Android finds an app on the phone that can do it (open a web page, dial a number).
+
+## Lifecycle and saved state
+
+`MainActivity` logs every lifecycle callback under the tag `TENANT_LIFECYCLE`, so the order Android calls them in — `onCreate → onStart → onResume → onPause → onStop → onRestart → onDestroy` — is visible while you use the app (`adb logcat -s TENANT_LIFECYCLE`). `LoginActivity` and `RegisterActivity` log their own lifecycles under the same tag.
+
+Rotating the screen destroys and recreates the Activity, which would wipe the Kotlin variables that hold the last saved tenant. To stop that, `MainActivity` writes the tenant's three fields into the `Bundle` in `onSaveInstanceState()` and reads them back in `onCreate()`, so a saved tenant — and the CALL/SHARE buttons — still work after a rotation. The EditText contents survive on their own, because Android saves and restores any field that has an id.
+
+## Fragments and the navigation graph
+
+The screens that will live inside `MainActivity` are already written as Fragments, ready for Practical 3 to wire up:
+
+- `DashboardFragment` — shows the tenant count and total rent from the shared `TenantRepository`.
+- `AddTenantFragment` — the Add Tenant form.
+- `ViewTenantsFragment` — the just-added tenant (Data Binding) plus the list of all tenants.
+
+`res/navigation/nav_graph.xml` maps them: `DashboardFragment` is the start destination and has actions to Add Tenant and to View Tenants; Add Tenant has an action to View Tenants; View Tenants takes an optional `newTenant` argument. `Tenant` is now `Serializable`, so it can be passed through that argument, and Safe Args is set up to generate the type-safe navigation classes. Nothing shows these screens yet — Practical 3 adds the `NavHost` and App Bar to `MainActivity`.
 
 ## How to run
 
@@ -128,12 +150,21 @@ TenantManagementSystem/
 │       │   ├── LoginActivity.kt
 │       │   ├── RegisterActivity.kt
 │       │   ├── MainActivity.kt
-│       │   └── Tenant.kt
+│       │   ├── DashboardFragment.kt
+│       │   ├── AddTenantFragment.kt
+│       │   ├── ViewTenantsFragment.kt
+│       │   ├── Tenant.kt
+│       │   └── TenantRepository.kt
 │       └── res/
 │           ├── layout/
 │           │   ├── activity_login.xml
 │           │   ├── activity_register.xml
-│           │   └── activity_main.xml
+│           │   ├── activity_main.xml
+│           │   ├── fragment_dashboard.xml
+│           │   ├── fragment_add_tenant.xml
+│           │   └── fragment_view_tenants.xml
+│           ├── navigation/
+│           │   └── nav_graph.xml
 │           └── values/
 │               ├── strings.xml
 │               ├── themes.xml
@@ -162,6 +193,7 @@ TenantManagementSystem/
 - AndroidX AppCompat 1.7.0
 - AndroidX ConstraintLayout 2.2.1
 - AndroidX Core KTX 1.13.1
+- AndroidX Navigation (Fragment KTX + UI KTX) 2.9.8, Safe Args 2.9.8
 - minSdk 24, compileSdk 36, targetSdk 36
 
 ## Build notes
@@ -170,6 +202,7 @@ Android Studio 2026.1 ships Android Gradle Plugin 9, where Kotlin support is bui
 
 - The Kotlin Android plugin is not applied. Applying it fails with `Cannot add extension with name 'kotlin'`.
 - `kotlin-kapt` is not compatible with built-in Kotlin, and Data Binding no longer needs it. Turning on `dataBinding = true` is enough for the binding classes to be generated.
+- Safe Args declares its plugin version once in the project `build.gradle.kts` (`apply false`) and switches it on in the module. The plugin and both navigation libraries must all be `2.9.8`.
 
 The project builds clean with `./gradlew assembleDebug`.
 

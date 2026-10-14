@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     // AGP 9 has built-in Kotlin support, so the Kotlin Android plugin is NOT applied.
     // Data Binding generates its binding classes here without kapt.
+    // Safe Args: must come BELOW the android.application line.
+    id("androidx.navigation.safeargs.kotlin")
 }
 
 android {
@@ -42,6 +44,8 @@ android {
 }
 
 dependencies {
+    implementation("androidx.navigation:navigation-fragment-ktx:2.9.8")
+    implementation("androidx.navigation:navigation-ui-ktx:2.9.8")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout)
