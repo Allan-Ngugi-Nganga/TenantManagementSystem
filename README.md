@@ -31,7 +31,7 @@ The app has four Activities. `LoginActivity` is the first screen: it takes an em
 
 Kotlin reaches the views through View Binding, and the result area reads a `Tenant` object directly through Data Binding. The point of the exercise is the separation of concerns. `MainActivity` builds a `Tenant` and hands it to the layout, and the layout decides how that `Tenant` is displayed. Changing the display format means editing the `Tenant` class, not the activity.
 
-Practical 2 goes inside the Activity: it logs the Activity lifecycle so the create/pause/stop/destroy order is visible in Logcat, and it saves the last tenant in a `Bundle` so it survives a screen rotation. It then builds the screens that will live inside `MainActivity` as three Fragments — Dashboard, Add Tenant and View Tenants — and maps them in a Navigation Graph. Practical 3 then connects them: `MainActivity` becomes a shell around a `NavHost`, the App Bar is driven by `setupActionBarWithNavController`, the Dashboard buttons navigate with Safe Args directions, a new tenant travels from Add Tenant to View Tenants through a typed `newTenant` argument, the back stack is fixed with `popUpTo`, destination changes are animated, an options menu and a navigation drawer are wired through `NavigationUI`, and lifecycle logs now appear for Fragments as well as Activities. Rotating the phone on View Tenants keeps the "Just added" tenant on screen without any `onSaveInstanceState` code, because the Navigation Component restores it from the back stack's arguments.
+Practical 2 goes inside the Activity: it logs the Activity lifecycle so the create/pause/stop/destroy order is visible in Logcat, and it saved the last tenant in a `Bundle` so it survived a screen rotation. It then built the screens that will live inside `MainActivity` as three Fragments (Dashboard, Add Tenant and View Tenants) and maps them in a Navigation Graph. Practical 3 then connects them: `MainActivity` becomes a shell around a `NavHost`, the App Bar is driven by `setupActionBarWithNavController`, the Dashboard buttons navigate with Safe Args directions, a new tenant travels from Add Tenant to View Tenants through a typed `newTenant` argument, the back stack is fixed with `popUpTo`, destination changes are animated, an options menu and a navigation drawer are wired through `NavigationUI`, and lifecycle logs now appear for Fragments as well as Activities. Rotating the phone on View Tenants keeps the "Just added" tenant on screen without any `onSaveInstanceState` code, because the Navigation Component restores it from the back stack's arguments.
 
 ## Screenshots
 
@@ -42,21 +42,6 @@ Practical 2 goes inside the Activity: it logs the Activity lifecycle so the crea
 </p>
 <p align="center">
   <em>Login, Register, and Login again after Register carried the email across with putExtra.</em>
-</p>
-
-<p align="center">
-  <img src="screenshots/add-tenant-welcome.png" width="300" alt="Add Tenant screen greeting the logged-in user">
-  <img src="screenshots/add-tenant-saved.png" width="300" alt="Add Tenant screen after saving a tenant">
-</p>
-<p align="center">
-  <em>The Add Tenant screen as it opens — greeted with the email carried from Login — and after a tenant is saved through Data Binding.</em>
-</p>
-
-<p align="center">
-  <img src="screenshots/add-tenant-share.png" width="300" alt="Android share sheet after tapping SHARE TENANT">
-</p>
-<p align="center">
-  <em>SHARE TENANT hands the saved tenant's summary to the Android share sheet through an implicit ACTION_SEND Intent.</em>
 </p>
 
 ### Lab 7: Navigation Practical 3
@@ -88,7 +73,26 @@ Practical 2 goes inside the Activity: it logs the Activity lifecycle so the crea
   <em>CALL TENANT reaches the dialer with the saved number, Back from View Tenants lands on the Dashboard (not the form), and Logout clears the task and returns to Login.</em>
 </p>
 
-On the Add Tenant screen the name renders in large bold text and the summary is filled in by Data Binding, the three inputs clear on save, CALL TENANT hands the saved number to the dialer, and SHARE TENANT hands the tenant's summary to any app that can send text.
+### Practical 1 and 2 evidence (superseded)
+
+These pictures show the Activity-based Add Tenant screen that Practical 1 and 2 built. From Practical 3 on, that form lives in `AddTenantFragment`, SHARE TENANT is no longer part of the app, and the old Activity code is kept in git history.
+
+<p align="center">
+  <img src="screenshots/add-tenant-welcome.png" width="300" alt="Add Tenant screen greeting the logged-in user">
+  <img src="screenshots/add-tenant-saved.png" width="300" alt="Add Tenant screen after saving a tenant">
+</p>
+<p align="center">
+  <em>The Activity-based Add Tenant screen as it opens, greeted with the email carried from Login, and after a tenant is saved through Data Binding.</em>
+</p>
+
+<p align="center">
+  <img src="screenshots/add-tenant-share.png" width="300" alt="Android share sheet after tapping SHARE TENANT">
+</p>
+<p align="center">
+  <em>SHARE TENANT hands the saved tenant's summary to the Android share sheet through an implicit ACTION_SEND Intent.</em>
+</p>
+
+In the Activity-based version, the Add Tenant screen rendered the name in large bold text, filled the summary in through Data Binding, cleared the inputs on save, handed the saved number to the dialer, and passed the summary to any app that could send text. The fragment flow in Lab 7 keeps the form and the dialer and drops the share sheet.
 
 ## What it does
 
@@ -101,10 +105,10 @@ On the Add Tenant screen the name renders in large bold text and the summary is 
 - Renders a `Tenant` object through Data Binding with `android:text="@{tenant.summary()}"`.
 - Holds tenant data in a `Tenant` data class (`name`, `phone`, `rent`) with a `summary()` method.
 - Validates the tenant name: an empty name shows a field error and blocks the save.
-- Shows the saved tenant's name in large bold text above the summary, and clears the three inputs after a save.
+- Shows the saved tenant's name and summary under "Just added" on View Tenants, and clears the three inputs after a save.
 - Dials the last saved tenant with an implicit Intent (`ACTION_DIAL` + `"tel:$phone"`), warning "Save a tenant first" if nothing is saved yet.
 - Logs every Activity lifecycle callback under the `TENANT_LIFECYCLE` tag, so the order Android calls them in is visible in Logcat.
-- Saves the last tenant in `onSaveInstanceState()` and restores it in `onCreate()`, so a saved tenant survives a screen rotation.
+- Survives rotation on View Tenants without saved-state code, because the tenant is a Safe Args argument that the Navigation Component restores.
 - Keeps tenants in an in-memory `TenantRepository` object that every screen shares.
 - Defines `DashboardFragment`, `AddTenantFragment` and `ViewTenantsFragment`, mapped in `res/navigation/nav_graph.xml` and hosted by `MainActivity` inside a `NavHost`.
 - Sets the Toolbar as the App Bar with `setSupportActionBar`, then hands it to NavigationUI with `setupActionBarWithNavController`, so the title and the up arrow follow the current destination.
@@ -136,17 +140,28 @@ An explicit Intent names the exact screen to open (`Intent(this, MainActivity::c
 
 ## Lifecycle and saved state
 
-`MainActivity` logs every lifecycle callback under the tag `TENANT_LIFECYCLE`, so the order Android calls them in — `onCreate → onStart → onResume → onPause → onStop → onRestart → onDestroy` — is visible while you use the app (`adb logcat -s TENANT_LIFECYCLE`). `LoginActivity` and `RegisterActivity` log their own lifecycles under the same tag.
+Every Activity and Fragment logs its callbacks under the tag `TENANT_LIFECYCLE`, so the order Android calls them in is visible while you use the app (`adb logcat -s TENANT_LIFECYCLE`). Fragment logs are indented by three spaces so they stand out from the Activity's in Logcat.
 
-Rotating the screen destroys and recreates the Activity, which would wipe the Kotlin variables that hold the last saved tenant. To stop that, `MainActivity` writes the tenant's three fields into the `Bundle` in `onSaveInstanceState()` and reads them back in `onCreate()`, so a saved tenant — and the CALL/SHARE buttons — still work after a rotation. The EditText contents survive on their own, because Android saves and restores any field that has an id.
+```text
+MainActivity: onCreate
+   DashboardFragment: onCreate
+   DashboardFragment: onCreateView
+   DashboardFragment: onViewCreated
+   DashboardFragment: onStart
+MainActivity: onStart
+MainActivity: onResume
+   DashboardFragment: onResume
+```
+
+Practical 2 saved the last tenant by hand, writing its three fields into the `Bundle` in `onSaveInstanceState()` and reading them back in `onCreate()`. Practical 3 deletes that code: the tenant now travels to View Tenants as a Safe Args argument, and the Navigation Component restores it with the back stack, so rotating the phone on View Tenants keeps "Just added" on screen with no saved-state code at all. EditText contents still survive on their own, because Android saves and restores any field that has an id.
 
 ## Fragments and the navigation graph
 
 `MainActivity` now hosts the three screens as Fragments:
 
-- `DashboardFragment` — shows the tenant count and total rent from the shared `TenantRepository`, with buttons to Add Tenant and View Tenants.
-- `AddTenantFragment` — the Add Tenant form; SAVE validates the name (and refuses a phone number with fewer than ten digits), stores the tenant, then navigates to View Tenants.
-- `ViewTenantsFragment` — the just-added tenant under "Just added" plus the list of all tenants, with CALL TENANT opening the dialer.
+- `DashboardFragment`: shows the tenant count and total rent from the shared `TenantRepository`, with buttons to Add Tenant and View Tenants.
+- `AddTenantFragment`: the Add Tenant form; SAVE validates the name (and refuses a phone number with fewer than ten digits), stores the tenant, then navigates to View Tenants.
+- `ViewTenantsFragment`: the just-added tenant under "Just added" plus the list of all tenants, with CALL TENANT opening the dialer.
 
 `res/navigation/nav_graph.xml` maps them: `DashboardFragment` is the start destination and has animated actions to Add Tenant and to View Tenants; Add Tenant has an action to View Tenants with `popUpTo="@id/dashboardFragment"`; View Tenants takes an optional, nullable `newTenant` argument. `Tenant` is `Serializable`, so Safe Args puts it in a `Bundle` and generates `DashboardFragmentDirections`, `AddTenantFragmentDirections` and the type-safe `ViewTenantsFragmentArgs`.
 
