@@ -27,11 +27,13 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
+            <!-- Null-safe on purpose: the argument is nullable, so the layout
+                 must cope with tenant == null instead of throwing. -->
             <TextView
                 android:id="@+id/newTenantTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@{tenant.summary()}"
+                android:text="@{tenant != null ? tenant.summary() : &quot;&quot;}"
                 android:textSize="16sp"
                 android:padding="16dp"
                 android:background="#E8EEF7"

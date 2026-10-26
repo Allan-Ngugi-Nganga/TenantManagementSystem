@@ -7,4 +7,9 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- App Bar and the metric boxes share this pale blue. -->
+    <color name="panel_blue">#FFE8EEF7</color>
+    <!-- Navigation drawer header. -->
+    <color name="drawer_header_blue">#FF1F4E79</color>
 </resources>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The App Bar's ⋮ menu.
+     viewTenantsFragment is deliberately the SAME id as the destination in
+     nav_graph.xml: NavigationUI.onNavDestinationSelected() finds that
+     destination and navigates to it with no extra code.
+     action_logout is not a destination, so we handle it ourselves with an
+     Intent back to LoginActivity. -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/viewTenantsFragment"
+        android:title="View Tenants"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_logout"
+        android:title="Logout"
+        app:showAsAction="never" />
+
+</menu>
