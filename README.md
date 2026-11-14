@@ -1,8 +1,11 @@
 <h1 align="center">TenantManagementSystem</h1>
 <p align="center">
-  <em>A property manager's app built with View Binding, Data Binding and Intents.</em>
+  <em>A property manager's app built with a ViewModel, LiveData, Room, Data Binding and Intents.</em>
   <br>
   <br>
+  <a href="#download">Download</a> ·
+  <a href="#architecture">Architecture</a> ·
+  <a href="#team">Team</a> ·
   <a href="#overview">Overview</a> ·
   <a href="#screenshots">Screenshots</a> ·
   <a href="#what-it-does">What It Does</a> ·
@@ -10,10 +13,9 @@
   <a href="#how-to-run">How to Run</a> ·
   <a href="#project-structure">Project Structure</a> ·
   <a href="#built-with">Built With</a> ·
-  <a href="#build-notes">Build Notes</a> ·
-  <a href="#author">Author</a>
+  <a href="#build-notes">Build Notes</a>
   <br>
-  <img src="https://img.shields.io/badge/version-1.2.0-16a34a" alt="Version 1.2.0">
+  <img src="https://img.shields.io/badge/version-1.0.0-16a34a" alt="Version 1.0.0">
   <img src="https://img.shields.io/badge/license-UNLICENSED-16a34a" alt="UNLICENSED">
   <img src="https://img.shields.io/badge/platform-Android-16a34a" alt="Android">
   <img src="https://img.shields.io/badge/language-Kotlin-16a34a" alt="Kotlin">
@@ -23,7 +25,57 @@
 
 TenantManagementSystem is the Android app built for the BBT 3.2 Mobile Application Development practicals at Strathmore University. It starts with a Login and a Register screen, then opens a Dashboard hosted inside a Navigation Component: an App Bar with an options menu, a navigation drawer showing the signed-in user, and three Fragments (Dashboard, Add Tenant, View Tenants) that swap in and out of a `NavHost` with Safe Args carrying data between them.
 
-The Lesson 6 practicals walk through the progression from a static screen, to View Binding, to Data Binding, then add navigation: multiple Activities, explicit Intents, passing data with `putExtra`, and implicit Intents that ask other apps to do things. The app is as much a demonstration of those techniques as it is a usable form.
+The Lesson 6 practicals walk through the progression from a static screen, to View Binding, to Data Binding, then add navigation: multiple Activities, explicit Intents, passing data with `putExtra`, and implicit Intents that ask other apps to do things. Lab 8 then grows the app into a layered architecture: the Fragments talk only to a `TenantViewModel`, the ViewModel talks to a `TenantRepository`, and the repository is the only door into a Room database, so tenants now survive the app being closed.
+
+## Download
+
+Latest APK: see **Releases** on the right of this page. The release is built from `main` and signed, so it installs on any Android phone with Android 7.0 (API 24) or newer.
+
+## Architecture
+
+The code is split into a UI layer and a data layer. The layers have a direction: `ui` may use `data`, but `data` never imports from `ui`.
+
+```
+com.example.tenantmanagementsystemgroupa
+├── ui                         UI LAYER: shows data, collects input, navigates
+│   ├── auth                     LoginActivity, RegisterActivity
+│   ├── main                     MainActivity (App Bar, NavHost, drawer)
+│   ├── dashboard                DashboardFragment
+│   ├── tenants                  AddTenantFragment, ViewTenantsFragment
+│   └── viewmodel                TenantViewModel (LiveData + transformations)
+└── data                       DATA LAYER: stores and fetches tenants
+    ├── model                    Tenant (@Entity)
+    ├── local                    TenantDao, TenantDatabase (Room)
+    └── repository               TenantRepository (the single door into Room)
+```
+
+```
+Screens -> TenantViewModel (LiveData) -> TenantRepository -> Room -> SQLite
+```
+
+- **Screens** only do UI jobs: show data, collect input, show messages, navigate. The Dashboard reads the ViewModel's LiveData through Data Binding (`@{viewModel.tenantCountText}`), View Tenants observes `allTenantsText` with `viewModel.allTenantsText.observe(viewLifecycleOwner)`, and Add Tenant hands the raw field values to `viewModel.addTenant(...)` and navigates with the returned `Tenant`.
+- **TenantViewModel** owns the logic: it trims and validates input, turns the tenant list into the strings the screens show, and saves inside `viewModelScope.launch` so the UI never blocks. It is an `AndroidViewModel` because opening the database needs the `Application` context, and it is shared by all three Fragments with `by activityViewModels()`, so a tenant added on one screen appears on the others.
+- **TenantRepository** is the only class that touches the DAO. The ViewModel never sees `TenantDao` or `TenantDatabase` directly.
+- **Room** stores the tenants in the `tenants` table. `TenantDao.getAllTenants()` returns a `LiveData` query, so Room notifies the UI whenever the table changes, including the insert that just happened.
+
+The payoff is visible in the git history: Stage 5 replaced the whole storage system (an in-memory list became a Room database) and no screen had to change. The ViewModel kept the same `tenants`, `tenantCountText`, `totalRentText`, `allTenantsText` and `addTenant(...)` surface, so the UI layer did not notice.
+
+## Team
+
+The app was built in the six stages of the Lab 8 group project. Each stage was done on its own branch, reviewed by another member, then merged.
+
+| Stage | Member | Admission No. | Branch / PR |
+|---|---|---|---|
+| 1 Lead: repository and layers | Allan Ngugi | 191250 | `main` |
+| 2 ViewModel | Ziki Mtula | 192992 | `feature/viewmodel` |
+| 3 Room | Michael Asingwire | 192483 | `feature/room` |
+| 4 Screens | Kelly Wambui | 190500 | `feature/screens` |
+| 5 Data integration | Daniella Thande, Evelyn Mwangi | 152581, 190051 | `feature/data-integration` |
+| 6 Release | Daniel Karanja | 180761 | `release/v1.0` |
+
+Group 1: Allan Ngugi (191250), Ziki Mtula (192992), Michael Asingwire (192483), Kelly Wambui (190500), Daniella Thande (152581), Evelyn Mwangi (190051), Daniel Karanja (180761).
+
+Each stage's pull request link is added here once the group has pushed the branches to GitHub.
 
 ## Overview
 
@@ -104,12 +156,13 @@ In the Activity-based version, the Add Tenant screen rendered the name in large 
 - Opens the Strathmore website from the Login screen with an implicit Intent (`ACTION_VIEW` + `Uri.parse`).
 - Renders a `Tenant` object through Data Binding with `android:text="@{tenant.summary()}"`.
 - Holds tenant data in a `Tenant` data class (`name`, `phone`, `rent`) with a `summary()` method.
-- Validates the tenant name: an empty name shows a field error and blocks the save.
-- Shows the saved tenant's name and summary under "Just added" on View Tenants, and clears the three inputs after a save.
+- Validates the tenant on save: the ViewModel rejects any blank field, and Add Tenant shows a toast and stays on the form.
+- Shows the saved tenant's name and summary under "Just added" on View Tenants.
 - Dials the last saved tenant with an implicit Intent (`ACTION_DIAL` + `"tel:$phone"`), warning "Save a tenant first" if nothing is saved yet.
 - Logs every Activity lifecycle callback under the `TENANT_LIFECYCLE` tag, so the order Android calls them in is visible in Logcat.
 - Survives rotation on View Tenants without saved-state code, because the tenant is a Safe Args argument that the Navigation Component restores.
-- Keeps tenants in an in-memory `TenantRepository` object that every screen shares.
+- Keeps tenants in a Room database (`tenants` table) behind `TenantRepository`, so they survive the app being closed.
+- Shares one `TenantViewModel` across the three Fragments with `by activityViewModels()`: the dashboard totals update when Add Tenant saves.
 - Defines `DashboardFragment`, `AddTenantFragment` and `ViewTenantsFragment`, mapped in `res/navigation/nav_graph.xml` and hosted by `MainActivity` inside a `NavHost`.
 - Sets the Toolbar as the App Bar with `setSupportActionBar`, then hands it to NavigationUI with `setupActionBarWithNavController`, so the title and the up arrow follow the current destination.
 - Navigates with generated Safe Args directions only; no string action id is used anywhere.
@@ -204,14 +257,22 @@ TenantManagementSystem/
 │   └── src/main/
 │       ├── AndroidManifest.xml
 │       ├── java/com/example/tenantmanagementsystemgroupa/
-│       │   ├── LoginActivity.kt
-│       │   ├── RegisterActivity.kt
-│       │   ├── MainActivity.kt
-│       │   ├── DashboardFragment.kt
-│       │   ├── AddTenantFragment.kt
-│       │   ├── ViewTenantsFragment.kt
-│       │   ├── Tenant.kt
-│       │   └── TenantRepository.kt
+│       │   ├── ui/
+│       │   │   ├── auth/
+│       │   │   │   ├── LoginActivity.kt
+│       │   │   │   └── RegisterActivity.kt
+│       │   │   ├── main/MainActivity.kt
+│       │   │   ├── dashboard/DashboardFragment.kt
+│       │   │   ├── tenants/
+│       │   │   │   ├── AddTenantFragment.kt
+│       │   │   │   └── ViewTenantsFragment.kt
+│       │   │   └── viewmodel/TenantViewModel.kt
+│       │   └── data/
+│       │       ├── model/Tenant.kt
+│       │       ├── local/
+│       │       │   ├── TenantDao.kt
+│       │       │   └── TenantDatabase.kt
+│       │       └── repository/TenantRepository.kt
 │       └── res/
 │           ├── layout/
 │           │   ├── activity_login.xml
@@ -252,28 +313,32 @@ The `add-tenant-*.png` screenshots and the README text about the Activity-based 
 
 ## Built with
 
-- Kotlin 2.2.10
-- Android Gradle Plugin 9.1.1
-- Gradle 9.3.1
+- Kotlin 2.4 (AGP 9.1.1 built-in compiler), JVM target 11
+- Android Gradle Plugin 9.1.1, Gradle 9.3.1
 - AndroidX AppCompat 1.7.0
 - AndroidX ConstraintLayout 2.2.1
 - AndroidX Core KTX 1.13.1
 - AndroidX Navigation (Fragment KTX + UI KTX) 2.9.8, Safe Args 2.9.8
+- AndroidX Lifecycle ViewModel KTX + LiveData KTX 2.8.7, Fragment KTX 1.8.5
+- Room 2.7.2 (runtime, ktx, compiler via KSP)
+- KSP 2.3.14
 - minSdk 24, compileSdk 36, targetSdk 36
 
 ## Build notes
 
-Android Studio 2026.1 ships Android Gradle Plugin 9, where Kotlin support is built in. Two consequences for anyone following the original practical guide:
+Android Studio 2026.1 ships Android Gradle Plugin 9, where Kotlin support is built in. Three consequences for anyone following the original practical guide:
 
-- The Kotlin Android plugin is not applied. Applying it fails with `Cannot add extension with name 'kotlin'`.
+- The Kotlin Android plugin is not applied. Applying it fails with `Cannot add extension with name 'kotlin'` (or, with AGP 9's new DSL, `not compatible with AGP's 9.0 new DSL`).
 - `kotlin-kapt` is not compatible with built-in Kotlin, and Data Binding no longer needs it. Turning on `dataBinding = true` is enough for the binding classes to be generated.
+- Room needs KSP, and the KSP versions written in the guide (`2.3.0`, and the `<kotlin>-<ksp>` versions) do not resolve or do not support AGP 9's built-in Kotlin. This project uses the standalone KSP line, `com.google.devtools.ksp` `2.3.14`, which runs against built-in Kotlin. Older KSP releases fail with `KSP is not compatible with Android Gradle Plugin's built-in Kotlin`.
 - Safe Args declares its plugin version once in the project `build.gradle.kts` (`apply false`) and switches it on in the module. The plugin and both navigation libraries must all be `2.9.8`.
 
-The project builds clean with `./gradlew assembleDebug`.
+Release signing reads `keystore.properties` from the project root. That file, the `.jks` and the built release APK are git-ignored; a fresh clone builds debug without them and produces an unsigned release until the credentials are restored.
 
-## Author
-
-- Allan Ngugi - 191250
+```bash
+./gradlew assembleDebug    # debug APK
+./gradlew assembleRelease  # signed release APK, needs keystore.properties
+```
 
 ## License
 

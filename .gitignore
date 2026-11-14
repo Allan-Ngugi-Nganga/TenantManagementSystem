@@ -18,6 +18,9 @@ local.properties
 .DS_Store
 Thumbs.db
 
-# Signing keys (Stage 6) — secret: never commit
+# Signing keys (Stage 6): secret, never commit
 *.jks
 *.keystore
+# Release signing credentials and the locally built release APK
+keystore.properties
+/app/release/
