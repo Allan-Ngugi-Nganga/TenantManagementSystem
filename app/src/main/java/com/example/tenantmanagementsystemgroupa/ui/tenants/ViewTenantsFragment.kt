@@ -8,10 +8,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
 // Generated from fragment_view_tenants.xml (a Data Binding layout)
-import com.example.tenantmanagementsystemgroupa.data.repository.TenantRepository
 import com.example.tenantmanagementsystemgroupa.databinding.FragmentViewTenantsBinding
+import com.example.tenantmanagementsystemgroupa.ui.viewmodel.TenantViewModel
 
 // Navigation Practical 3, Parts B + E - the list of tenants, plus the tenant
 // that was just added.
@@ -29,6 +30,10 @@ class ViewTenantsFragment : Fragment() {
     // SAFE ARGS: reads the arguments that arrived with the action.
     // ViewTenantsFragmentArgs was generated from the <argument> in nav_graph.xml.
     private val args: ViewTenantsFragmentArgs by navArgs()
+
+    // The shared ViewModel (scoped to MainActivity). Its LiveData list is what
+    // the observer below renders, so there is no direct repository read here.
+    private val viewModel: TenantViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,13 +82,9 @@ class ViewTenantsFragment : Fragment() {
             }
         }
 
-        // Show every saved tenant as text, one after another
-        val tenants = TenantRepository.tenants
-
-        if (tenants.isEmpty()) {
-            binding.allTenantsTextView.text = "No tenants yet. Add one from the Dashboard."
-        } else {
-            binding.allTenantsTextView.text = tenants.joinToString("\n\n") { it.summary() }
+        // OBSERVER: runs now, and again every time allTenantsText changes
+        viewModel.allTenantsText.observe(viewLifecycleOwner) { text ->
+            binding.allTenantsTextView.text = text
         }
     }
 
