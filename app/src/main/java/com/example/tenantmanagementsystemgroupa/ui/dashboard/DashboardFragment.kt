@@ -6,10 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-// Generated from fragment_dashboard.xml (View Binding)
-import com.example.tenantmanagementsystemgroupa.data.repository.TenantRepository
+// Generated from fragment_dashboard.xml (Data Binding: it has a <layout> root)
 import com.example.tenantmanagementsystemgroupa.databinding.FragmentDashboardBinding
+import com.example.tenantmanagementsystemgroupa.ui.viewmodel.TenantViewModel
 
 // Navigation Practical 3, Parts B + C - the app's home screen.
 //
@@ -24,6 +25,11 @@ class DashboardFragment : Fragment() {
 
     private var _binding: FragmentDashboardBinding? = null
     private val binding get() = _binding!!
+
+    // activityViewModels() scopes the ViewModel to MainActivity, not to this
+    // Fragment. Dashboard, Add Tenant and View Tenants therefore share ONE
+    // ViewModel and one list of tenants, and that list survives rotation.
+    private val viewModel: TenantViewModel by activityViewModels()
 
     // 1. The Fragment OBJECT is created (no view yet)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,10 +58,14 @@ class DashboardFragment : Fragment() {
 
         Log.d("TENANT_LIFECYCLE", "   DashboardFragment: onViewCreated")
 
-        // Read from the shared list of tenants
-        binding.tenantCountTextView.text = "Tenants\n${TenantRepository.tenants.size}"
+        // DATA BINDING: hand the ViewModel to <variable name="viewModel"> in
+        // fragment_dashboard.xml. The two TextViews read tenantCountText and
+        // totalRentText through @{...}, so this Fragment writes no text itself.
+        binding.viewModel = viewModel
 
-        binding.totalRentTextView.text = "Total rent\nKSh %,.0f".format(TenantRepository.totalRent())
+        // Without a LifecycleOwner, LiveData is read once and never observed.
+        // viewLifecycleOwner also stops the observers when the view is destroyed.
+        binding.lifecycleOwner = viewLifecycleOwner
 
         // Dashboard -> Add Tenant
         binding.addTenantButton.setOnClickListener {
