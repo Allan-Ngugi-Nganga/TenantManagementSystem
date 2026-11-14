@@ -1,4 +1,6 @@
-package com.example.tenantmanagementsystemgroupa
+package com.example.tenantmanagementsystemgroupa.data.repository
+
+import com.example.tenantmanagementsystemgroupa.data.model.Tenant
 
 // An object is a class with exactly one instance, shared by the whole app.
 // The Dashboard, Add Tenant and View Tenants screens all see this same list.

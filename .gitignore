@@ -17,3 +17,7 @@ local.properties
 # OS junk
 .DS_Store
 Thumbs.db
+
+# Signing keys (Stage 6) — secret: never commit
+*.jks
+*.keystore

@@ -10,7 +10,7 @@
          Safe Args also needs the animations on the two Dashboard actions. -->
     <fragment
         android:id="@+id/dashboardFragment"
-        android:name="com.example.tenantmanagementsystemgroupa.DashboardFragment"
+        android:name="com.example.tenantmanagementsystemgroupa.ui.dashboard.DashboardFragment"
         android:label="Dashboard"
         tools:layout="@layout/fragment_dashboard">
 
@@ -33,7 +33,7 @@
 
     <fragment
         android:id="@+id/addTenantFragment"
-        android:name="com.example.tenantmanagementsystemgroupa.AddTenantFragment"
+        android:name="com.example.tenantmanagementsystemgroupa.ui.tenants.AddTenantFragment"
         android:label="Add Tenant"
         tools:layout="@layout/fragment_add_tenant">
 
@@ -50,7 +50,7 @@
 
     <fragment
         android:id="@+id/viewTenantsFragment"
-        android:name="com.example.tenantmanagementsystemgroupa.ViewTenantsFragment"
+        android:name="com.example.tenantmanagementsystemgroupa.ui.tenants.ViewTenantsFragment"
         android:label="View Tenants"
         tools:layout="@layout/fragment_view_tenants">
 
@@ -61,7 +61,7 @@
         <argument
             android:name="newTenant"
             android:defaultValue="@null"
-            app:argType="com.example.tenantmanagementsystemgroupa.Tenant"
+            app:argType="com.example.tenantmanagementsystemgroupa.data.model.Tenant"
             app:nullable="true" />
     </fragment>
 

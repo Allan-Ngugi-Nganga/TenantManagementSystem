@@ -1,4 +1,4 @@
-package com.example.tenantmanagementsystemgroupa
+package com.example.tenantmanagementsystemgroupa.ui.tenants
 
 import android.content.Intent
 import android.net.Uri
@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 // Generated from fragment_view_tenants.xml (a Data Binding layout)
+import com.example.tenantmanagementsystemgroupa.data.repository.TenantRepository
 import com.example.tenantmanagementsystemgroupa.databinding.FragmentViewTenantsBinding
 
 // Navigation Practical 3, Parts B + E - the list of tenants, plus the tenant

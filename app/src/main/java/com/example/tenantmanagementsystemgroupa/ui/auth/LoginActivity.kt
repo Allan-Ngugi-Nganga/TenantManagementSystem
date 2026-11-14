@@ -1,4 +1,4 @@
-package com.example.tenantmanagementsystemgroupa
+package com.example.tenantmanagementsystemgroupa.ui.auth
 
 import android.content.Intent
 import android.net.Uri
@@ -7,6 +7,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tenantmanagementsystemgroupa.databinding.ActivityLoginBinding
+import com.example.tenantmanagementsystemgroupa.ui.main.MainActivity
 
 // Navigation Practical 1 - Part A/B/C
 // BBT 3.2 Mobile Application Development - Strathmore

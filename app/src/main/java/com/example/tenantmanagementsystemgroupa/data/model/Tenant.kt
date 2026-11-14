@@ -1,4 +1,4 @@
-package com.example.tenantmanagementsystemgroupa
+package com.example.tenantmanagementsystemgroupa.data.model
 
 // Serializable is built into Java/Kotlin: no plugin needed.
 import java.io.Serializable
