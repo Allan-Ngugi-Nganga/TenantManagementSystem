@@ -4,6 +4,8 @@ plugins {
     // Data Binding generates its binding classes here without kapt.
     // Safe Args: must come BELOW the android.application line.
     id("androidx.navigation.safeargs.kotlin")
+    // KSP: generates Room's boilerplate at compile time
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -56,6 +58,11 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
     // Gives Fragments "by activityViewModels()" (used in Stage 4)
     implementation("androidx.fragment:fragment-ktx:1.8.5")
+    // Room: the local database library
+    implementation("androidx.room:room-runtime:2.7.2")
+    implementation("androidx.room:room-ktx:2.7.2")
+    // Generates the Room code (ksp, not implementation)
+    ksp("androidx.room:room-compiler:2.7.2")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
