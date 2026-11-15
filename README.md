@@ -75,7 +75,7 @@ The app was built in the six stages of the Lab 8 group project. Each stage was d
 
 Group 1: Allan Ngugi (191250), Ziki Mtula (192992), Michael Asingwire (192483), Kelly Wambui (190500), Daniella Thande (152581), Evelyn Mwangi (190051), Daniel Karanja (180761).
 
-Every stage after the first travelled through a pull request that a different member reviewed before it was merged. The `v1.0` tag and the signed release APK hang off the final merge (`9ccb0db`).
+Every stage after the first travelled through a pull request that a different member reviewed before it was merged. The `v1.0` tag and the signed release APK hang off the final merge (`c36edd3`).
 
 ## Overview
 
