@@ -15,7 +15,7 @@
   <a href="#built-with">Built With</a> ·
   <a href="#build-notes">Build Notes</a>
   <br>
-  <img src="https://img.shields.io/badge/version-1.0.0-16a34a" alt="Version 1.0.0">
+  <img src="https://img.shields.io/badge/version-1.0-16a34a" alt="Version 1.0">
   <img src="https://img.shields.io/badge/license-UNLICENSED-16a34a" alt="UNLICENSED">
   <img src="https://img.shields.io/badge/platform-Android-16a34a" alt="Android">
   <img src="https://img.shields.io/badge/language-Kotlin-16a34a" alt="Kotlin">
@@ -23,7 +23,7 @@
 
 ---
 
-TenantManagementSystem is the Android app built for the BBT 3.2 Mobile Application Development practicals at Strathmore University. It starts with a Login and a Register screen, then opens a Dashboard hosted inside a Navigation Component: an App Bar with an options menu, a navigation drawer showing the signed-in user, and three Fragments (Dashboard, Add Tenant, View Tenants) that swap in and out of a `NavHost` with Safe Args carrying data between them.
+TenantManagementSystem is the Android app built for the BBIT 3.2 Mobile Application Development practicals at Strathmore University. It starts with a Login and a Register screen, then opens a Dashboard hosted inside a Navigation Component: an App Bar with an options menu, a navigation drawer showing the signed-in user, and three Fragments (Dashboard, Add Tenant, View Tenants) that swap in and out of a `NavHost` with Safe Args carrying data between them.
 
 The Lesson 6 practicals walk through the progression from a static screen, to View Binding, to Data Binding, then add navigation: multiple Activities, explicit Intents, passing data with `putExtra`, and implicit Intents that ask other apps to do things. Lab 8 then grows the app into a layered architecture: the Fragments talk only to a `TenantViewModel`, the ViewModel talks to a `TenantRepository`, and the repository is the only door into a Room database, so tenants now survive the app being closed.
 
@@ -79,7 +79,7 @@ Every stage after the first travelled through a pull request that a different me
 
 ## Overview
 
-The app has four Activities. `LoginActivity` is the first screen: it takes an email and password, opens `MainActivity` with an explicit Intent, and links to `RegisterActivity`. `RegisterActivity` validates three fields, then returns to Login carrying the email with `putExtra("EMAIL")`. `MainActivity` is now only a frame: it holds a `MaterialToolbar`, a `FragmentContainerView` used as the `NavHost`, and a `DrawerLayout` with a `NavigationView`. Everything the user sees after logging in is a Fragment inside that NavHost.
+The app has three Activities. `LoginActivity` is the first screen: it takes an email and password, opens `MainActivity` with an explicit Intent, and links to `RegisterActivity`. `RegisterActivity` validates three fields, then returns to Login carrying the email with `putExtra("EMAIL")`. `MainActivity` is now only a frame: it holds a `MaterialToolbar`, a `FragmentContainerView` used as the `NavHost`, and a `DrawerLayout` with a `NavigationView`. Everything the user sees after logging in is a Fragment inside that NavHost.
 
 Kotlin reaches the views through View Binding, and the result area reads a `Tenant` object directly through Data Binding. The point of the exercise is the separation of concerns. `MainActivity` builds a `Tenant` and hands it to the layout, and the layout decides how that `Tenant` is displayed. Changing the display format means editing the `Tenant` class, not the activity.
 
@@ -152,13 +152,13 @@ In the Activity-based version, the Add Tenant screen rendered the name in large 
 - Validates the Login fields and blocks the move to the dashboard when either is empty.
 - Opens `MainActivity` (the Add Tenant screen) with an explicit Intent, then `finish()`es so Back does not return to Login.
 - Carries the registered email from Register to Login with `putExtra("EMAIL")` / `getStringExtra`, and uses `FLAG_ACTIVITY_CLEAR_TOP` so Register does not stack a second Login.
-- Greets the logged-in user: Login forwards the email to `MainActivity` with `putExtra("EMAIL")`, which shows a *Logged in as …* toast.
+- Carries the login email into `MainActivity` with `putExtra("EMAIL")`, where it fills the drawer header. The "Logged in as" toast from the Activity-based version is gone; the drawer does that job now.
 - Opens the Strathmore website from the Login screen with an implicit Intent (`ACTION_VIEW` + `Uri.parse`).
-- Renders a `Tenant` object through Data Binding with `android:text="@{tenant.summary()}"`.
+- Renders a `Tenant` object through Data Binding in View Tenants with `android:text="@{tenant != null ? tenant.summary() : &quot;&quot;}"`.
 - Holds tenant data in a `Tenant` data class (`name`, `phone`, `rent`) with a `summary()` method.
 - Validates the tenant on save: the ViewModel rejects any blank field, and Add Tenant shows a toast and stays on the form.
 - Shows the saved tenant's name and summary under "Just added" on View Tenants.
-- Dials the last saved tenant with an implicit Intent (`ACTION_DIAL` + `"tel:$phone"`), warning "Save a tenant first" if nothing is saved yet.
+- Dials the tenant that was just added with an implicit Intent (`ACTION_DIAL` + `"tel:$phone"`); when there is no new tenant the whole "Just added" group, Call button included, is hidden.
 - Logs every Activity lifecycle callback under the `TENANT_LIFECYCLE` tag, so the order Android calls them in is visible in Logcat.
 - Survives rotation on View Tenants without saved-state code, because the tenant is a Safe Args argument that the Navigation Component restores.
 - Keeps tenants in a Room database (`tenants` table) behind `TenantRepository`, so they survive the app being closed.
@@ -213,7 +213,7 @@ Practical 2 saved the last tenant by hand, writing its three fields into the `Bu
 `MainActivity` now hosts the three screens as Fragments:
 
 - `DashboardFragment`: shows the tenant count and total rent from the shared `TenantRepository`, with buttons to Add Tenant and View Tenants.
-- `AddTenantFragment`: the Add Tenant form; SAVE validates the name (and refuses a phone number with fewer than ten digits), stores the tenant, then navigates to View Tenants.
+- `AddTenantFragment`: the Add Tenant form; SAVE hands the three fields to `TenantViewModel.addTenant(...)`, which trims them and rejects any blank one, then navigates to View Tenants with the saved tenant.
 - `ViewTenantsFragment`: the just-added tenant under "Just added" plus the list of all tenants, with CALL TENANT opening the dialer.
 
 `res/navigation/nav_graph.xml` maps them: `DashboardFragment` is the start destination and has animated actions to Add Tenant and to View Tenants; Add Tenant has an action to View Tenants with `popUpTo="@id/dashboardFragment"`; View Tenants takes an optional, nullable `newTenant` argument. `Tenant` is `Serializable`, so Safe Args puts it in a `Bundle` and generates `DashboardFragmentDirections`, `AddTenantFragmentDirections` and the type-safe `ViewTenantsFragmentArgs`.
@@ -313,9 +313,10 @@ The `add-tenant-*.png` screenshots and the README text about the Activity-based 
 
 ## Built with
 
-- Kotlin 2.4 (AGP 9.1.1 built-in compiler), JVM target 11
+- Kotlin through AGP 9.1.1's built-in compiler (kotlin-stdlib 2.2.10 on the runtime classpath), JVM target 11
 - Android Gradle Plugin 9.1.1, Gradle 9.3.1
 - AndroidX AppCompat 1.7.0
+- AndroidX Material Components 1.12.0
 - AndroidX ConstraintLayout 2.2.1
 - AndroidX Core KTX 1.13.1
 - AndroidX Navigation (Fragment KTX + UI KTX) 2.9.8, Safe Args 2.9.8
@@ -342,4 +343,4 @@ Release signing reads `keystore.properties` from the project root. That file, th
 
 ## License
 
-UNLICENSED. Coursework submission for BBT 3.2 Mobile Application Development.
+UNLICENSED. Coursework submission for BBIT 3.2 Mobile Application Development.
