@@ -64,18 +64,18 @@ The payoff is visible in the git history: Stage 5 replaced the whole storage sys
 
 The app was built in the six stages of the Lab 8 group project. Each stage was done on its own branch, reviewed by another member, then merged.
 
-| Stage | Member | Admission No. | Branch / PR |
-|---|---|---|---|
-| 1 Lead: repository and layers | Allan Ngugi | 191250 | `main` |
-| 2 ViewModel | Ziki Mtula | 192992 | `feature/viewmodel` |
-| 3 Room | Michael Asingwire | 192483 | `feature/room` |
-| 4 Screens | Kelly Wambui | 190500 | `feature/screens` |
-| 5 Data integration | Daniella Thande, Evelyn Mwangi | 152581, 190051 | `feature/data-integration` |
-| 6 Release | Daniel Karanja | 180761 | `release/v1.0` |
+| Stage | Member | Admission No. | Branch | Pull request | Reviewed by |
+|---|---|---|---|---|---|
+| 1 Lead: repository and layers | Allan Ngugi | 191250 | `main` | committed to `main` | n/a |
+| 2 ViewModel | Ziki Mtula | 192992 | `feature/viewmodel` | [#1](https://github.com/Allan-Ngugi-Nganga/TenantManagementSystem/pull/1) | Kelly Wambui |
+| 3 Room | Michael Asingwire | 192483 | `feature/room` | [#2](https://github.com/Allan-Ngugi-Nganga/TenantManagementSystem/pull/2) | Daniella Thande |
+| 4 Screens | Kelly Wambui | 190500 | `feature/screens` | [#3](https://github.com/Allan-Ngugi-Nganga/TenantManagementSystem/pull/3) | Ziki Mtula |
+| 5 Data integration | Daniella Thande, Evelyn Mwangi | 152581, 190051 | `feature/data-integration` | [#4](https://github.com/Allan-Ngugi-Nganga/TenantManagementSystem/pull/4) | Michael Asingwire |
+| 6 Release | Daniel Karanja | 180761 | `release/v1.0` | [#5](https://github.com/Allan-Ngugi-Nganga/TenantManagementSystem/pull/5) | Allan Ngugi |
 
 Group 1: Allan Ngugi (191250), Ziki Mtula (192992), Michael Asingwire (192483), Kelly Wambui (190500), Daniella Thande (152581), Evelyn Mwangi (190051), Daniel Karanja (180761).
 
-Each stage's pull request link is added here once the group has pushed the branches to GitHub.
+Every stage after the first travelled through a pull request that a different member reviewed before it was merged. The `v1.0` tag and the signed release APK hang off the final merge (`9ccb0db`).
 
 ## Overview
 
